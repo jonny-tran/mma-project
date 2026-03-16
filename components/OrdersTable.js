@@ -14,22 +14,9 @@ export default function OrdersTable({
     orders,
     loading,
     error,
+    OrderStatus,
 }) {
     const router = useRouter();
-
-    const OrderStatus = {
-        pending: { color: '#BB4D00', backgroundColor: '#FEF3C6', text: 'Đang chờ' },
-        approved: { color: '#008236', backgroundColor: '#DBFCE7', text: 'Đã duyệt' },
-        rejected: { color: '#C10007', backgroundColor: '#FFE2E2', text: 'Đã từ chối' },
-        delivering: { color: '#1447E6', backgroundColor: '#DBEAFE', text: 'Đang giao' },
-        in_transit: { color: '#1447E6', backgroundColor: '#DBEAFE', text: 'Đang vận chuyển' },
-        transit: { color: '#1447E6', backgroundColor: '#DBEAFE', text: 'Đang vận chuyển' },
-        cancelled: { color: '#666', backgroundColor: '#EEE', text: 'Đã hủy' },
-        delivered: { color: '#666', backgroundColor: '#EEE', text: 'Đã giao' },
-        picking: { color: '#666', backgroundColor: '#EEE', text: 'Đang lấy hàng' },
-        completed: { color: '#666', backgroundColor: '#EEE', text: 'Hoàn tất' },
-        claimed: { color: '#666', backgroundColor: '#EEE', text: 'Đã khiếu nại' },
-    };
 
     const renderItem = ({ item: order, index }) => {
         return (
