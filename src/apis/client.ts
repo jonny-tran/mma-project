@@ -1,16 +1,16 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
-import * as SecureStore from "expo-secure-store";
+import { getItemAsync, setItemAsync } from "../utils/storage";
 import { useAuthStore } from "../store/authStore";
 
 const apiClient = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_API_URL,
+  baseURL: process.env.EXPO_PUBLIC_API_URL || "https://wdp301-api.onrender.com/wdp301-api/v1",
   timeout: Number(process.env.EXPO_PUBLIC_API_TIMEOUT) || 20000,
   headers: { "Content-Type": "application/json" },
 });
 
 // ──── Request Interceptor: Gắn Bearer Token vào mỗi request ────
 apiClient.interceptors.request.use(async (config) => {
-  const token = await SecureStore.getItemAsync("access_token");
+  const token = await getItemAsync("access_token");
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -59,8 +59,8 @@ apiClient.interceptors.response.use(
         return Promise.reject(error);
       }
 
-      // Kiểm tra có refresh_token trong SecureStore không
-      const refreshToken = await SecureStore.getItemAsync("refresh_token");
+      // Kiểm tra có refresh_token trong storage không
+      const refreshToken = await getItemAsync("refresh_token");
       if (!refreshToken) {
         console.log("Không tìm thấy refresh_token → Đăng xuất");
         await useAuthStore.getState().logout();
@@ -86,10 +86,10 @@ apiClient.interceptors.response.use(
         const { authApi } = await import("./auth.api");
         const data = await authApi.refreshToken({ refreshToken });
 
-        // Lưu token mới vào SecureStore
+        // Lưu token mới vào storage
         await Promise.all([
-          SecureStore.setItemAsync("access_token", data.accessToken),
-          SecureStore.setItemAsync("refresh_token", data.refreshToken),
+          setItemAsync("access_token", data.accessToken),
+          setItemAsync("refresh_token", data.refreshToken),
         ]);
 
         // Cập nhật token trong Zustand store

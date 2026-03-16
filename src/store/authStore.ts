@@ -1,6 +1,6 @@
-import * as SecureStore from "expo-secure-store";
 import { create } from "zustand";
 import { AuthState, User } from "../types/auth";
+import { setItemAsync, getItemAsync, deleteItemAsync } from "../utils/storage";
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
@@ -9,8 +9,8 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   login: async (userData, accessToken, refreshToken) => {
     await Promise.all([
-      SecureStore.setItemAsync("access_token", accessToken),
-      SecureStore.setItemAsync("refresh_token", refreshToken),
+      setItemAsync("access_token", accessToken),
+      setItemAsync("refresh_token", refreshToken),
     ]);
     set({ user: userData, token: accessToken, isAuthenticated: true });
   },
@@ -18,7 +18,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   logout: async () => {
     try {
       // Lấy refresh_token trước khi xóa để gọi API đăng xuất trên server
-      const refreshToken = await SecureStore.getItemAsync("refresh_token");
+      const refreshToken = await getItemAsync("refresh_token");
       if (refreshToken) {
         const { authApi } = await import("../apis/auth.api");
         await authApi.logout({ refreshToken });
@@ -30,8 +30,8 @@ export const useAuthStore = create<AuthState>((set) => ({
 
     // Luôn xóa token local bất kể API logout có thành công hay không
     await Promise.all([
-      SecureStore.deleteItemAsync("access_token"),
-      SecureStore.deleteItemAsync("refresh_token"),
+      deleteItemAsync("access_token"),
+      deleteItemAsync("refresh_token"),
     ]);
     set({ user: null, token: null, isAuthenticated: false });
   },
