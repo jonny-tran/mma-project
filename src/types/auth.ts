@@ -28,7 +28,11 @@ export interface LoginPayload {
 }
 
 export interface LoginResponse {
-  user: User;
+  userId: string;
+  email: string;
+  username: string;
+  role: string;
+  storeId: string | null;
   accessToken: string;
   refreshToken: string;
 }
