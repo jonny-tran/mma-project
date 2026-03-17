@@ -1,6 +1,9 @@
 import { authApi } from "@/src/apis/auth.api";
+import { useRouter } from "expo-router";
 import { useAuthStore } from "@/src/store/authStore";
+import { pickingTasksApi } from "@/src/apis/picking-tasks.api";
 import React, { useCallback, useEffect, useState } from "react";
+import { useFocusEffect } from "expo-router";
 import {
   ScrollView,
   StyleSheet,
@@ -22,8 +25,16 @@ import Toast from "react-native-toast-message";
 const { width } = Dimensions.get("window");
 
 export default function KitchenHomeScreen() {
+  const router = useRouter();
   const { user, logout, updateUser } = useAuthStore();
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+  
+  const [stats, setStats] = useState({
+    pending: 0,
+    picking: 0,
+    completed: 0,
+    alert: 0
+  });
 
   // Fetch profile
   useEffect(() => {
@@ -40,6 +51,40 @@ export default function KitchenHomeScreen() {
     };
     fetchProfile();
   }, [updateUser]);
+
+  // Fetch Dashboard Stats
+  const fetchDashboardData = async () => {
+    try {
+      const data = await pickingTasksApi.getPickingTasks();
+      const tasks = data?.items || [];
+      
+      let pendingCount = 0;
+      let pickingCount = 0;
+      let completedCount = 0;
+      
+      tasks.forEach(t => {
+        const s = t.status?.toUpperCase();
+        if (s === "PENDING" || s === "APPROVED") pendingCount++;
+        if (s === "PICKING" || s === "IN_PROGRESS") pickingCount++;
+        if (s === "COMPLETED" || s === "DONE") completedCount++;
+      });
+      
+      setStats(prev => ({
+        ...prev,
+        pending: pendingCount,
+        picking: pickingCount,
+        completed: completedCount,
+      }));
+    } catch (error) {
+      console.warn("Lỗi cập nhật thống kê đơn hàng:", error);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchDashboardData();
+    }, [])
+  );
 
   // Logout
   const handleLogout = useCallback(async () => {
@@ -170,12 +215,17 @@ export default function KitchenHomeScreen() {
         >
           {renderStatCard(
             "Đơn chờ xử lý",
-            "12",
+            stats.pending.toString(),
             "clipboard-text-clock",
             "#F57C00"
           )}
-          {renderStatCard("Đang sản xuất", "5", "pot-steam", "#0288D1")}
-          {renderStatCard("Chờ xuất kho", "8", "truck-delivery", "#388E3C")}
+          {renderStatCard(
+            "Đang nhặt hàng",
+            stats.picking.toString(),
+            "pot-steam",
+            "#0288D1"
+          )}
+          {renderStatCard("Đã hoàn thành", stats.completed.toString(), "check-decagram", "#388E3C")}
           {renderStatCard("Cảnh báo tồn", "3", "alert", "#D32F2F")}
         </ScrollView>
 
@@ -187,16 +237,14 @@ export default function KitchenHomeScreen() {
             "Tiếp nhận & xử lý đơn từ chi nhánh",
             "clipboard-list",
             "#F57C00",
-            () =>
-              Toast.show({ type: "info", text1: "Tính năng đang phát triển" })
+            () => router.push("/(kitchen)/orders" as any)
           )}
           {renderActionCard(
             "Kế Hoạch Sản Xuất",
             "Lập lệnh sản xuất & định mức",
             "factory",
             "#0288D1",
-            () =>
-              Toast.show({ type: "info", text1: "Tính năng đang phát triển" })
+            () => router.push("/(kitchen)/production" as any)
           )}
           {renderActionCard(
             "Tiến Độ & Xuất Kho",
