@@ -97,7 +97,9 @@ export default function KitchenOrdersScreen() {
           <View style={styles.cardHeader}>
             <View style={styles.orderIdContainer}>
               <Icon source="clipboard-text" size={20} color="#E65100" />
-              <Text style={styles.orderIdText}>{item.orderId || item.id}</Text>
+              <Text style={styles.orderIdText} numberOfLines={1} ellipsizeMode="tail">
+                {item.orderId || item.id}
+              </Text>
             </View>
             <View style={[styles.statusBadge, { backgroundColor: statusColor.bg }]}>
               <Text style={[styles.statusText, { color: statusColor.text }]}>
@@ -204,9 +206,11 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   orderIdContainer: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
+    marginRight: 12,
   },
   orderIdText: {
     fontSize: 16,

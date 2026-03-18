@@ -63,13 +63,13 @@ function RootLayoutNav() {
     if (!isAuthenticated && !inAuthGroup) {
       router.replace("/(auth)/login");
     } else if (isAuthenticated && inAuthGroup) {
-      const currentUserRole = user?.role?.toLowerCase();
+      const currentUserRole = user?.role?.toLowerCase() || "";
 
-      if (currentUserRole === USER_ROLES.STORE) {
+      if (currentUserRole === USER_ROLES.STORE || currentUserRole.includes("store")) {
         router.replace("/(store)");
-      } else if (currentUserRole === USER_ROLES.KITCHEN) {
+      } else if (currentUserRole === USER_ROLES.KITCHEN || currentUserRole.includes("kitchen")) {
         router.replace("/(kitchen)");
-      } else if (currentUserRole === USER_ROLES.COORDINATOR) {
+      } else if (currentUserRole === USER_ROLES.COORDINATOR || currentUserRole.includes("coordinator")) {
         router.replace("/(coordinator)");
       } else {
         // FIX 2: Thông báo lỗi cực kỳ rõ ràng nếu cố tình đăng nhập bằng Admin
