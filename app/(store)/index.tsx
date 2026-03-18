@@ -11,15 +11,17 @@ import {
   Chip,
   Divider,
   List,
+  Surface,
   Text,
 } from "react-native-paper";
+import { useRouter } from "expo-router";
 import Toast from "react-native-toast-message";
 
 export default function StoreHomeScreen() {
+  const { push } = useRouter();
   const { user, logout, updateUser } = useAuthStore();
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
 
-  // Gọi API lấy thông tin profile khi màn hình mount
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -35,16 +37,14 @@ export default function StoreHomeScreen() {
     fetchProfile();
   }, []);
 
-  // Xử lý đăng xuất
   const handleLogout = useCallback(async () => {
     try {
       await logout();
       Toast.show({
         type: "success",
         text1: "Đăng xuất thành công",
-        text2: "Hẹn gặp lại bạn! 👋",
       });
-    } catch (error) {
+    } catch {
       Toast.show({
         type: "error",
         text1: "Đăng xuất thất bại",
@@ -53,14 +53,13 @@ export default function StoreHomeScreen() {
     }
   }, [logout]);
 
-  // Hiển thị loading khi đang tải profile
   if (isLoadingProfile) {
     return (
       <View style={styles.container}>
         <Appbar.Header elevated>
           <Appbar.Content title="Cửa hàng Franchise" />
         </Appbar.Header>
-        <View style={styles.loadingContainer}>
+        <View style={styles.centered}>
           <ActivityIndicator animating size="large" />
           <Text style={styles.loadingText}>Đang tải thông tin...</Text>
         </View>
@@ -70,10 +69,10 @@ export default function StoreHomeScreen() {
 
   return (
     <View style={styles.container}>
-      <Appbar.Header elevated>
+      <Appbar.Header elevated style={styles.header}>
         <Appbar.Content
           title="Cửa hàng Franchise"
-          subtitle={`Xin chào, ${user?.username}`}
+          titleStyle={styles.headerTitle}
         />
         <Appbar.Action icon="logout" onPress={handleLogout} />
       </Appbar.Header>
@@ -82,20 +81,87 @@ export default function StoreHomeScreen() {
         style={styles.content}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* ── Thẻ thông tin cá nhân ── */}
-        <Card style={styles.profileCard}>
-          <Card.Title
-            title={user?.username ?? "—"}
-            subtitle={user?.role ?? "—"}
-            left={(props) => (
-              <Avatar.Icon
-                {...props}
-                icon="account-circle"
-                style={styles.avatar}
-              />
-            )}
-          />
-          <Card.Content>
+        {/* ── Chào mừng ── */}
+        <Surface style={styles.welcomeCard} elevation={2}>
+          <View style={styles.welcomeRow}>
+            <Avatar.Icon
+              size={52}
+              icon="account-circle"
+              style={styles.avatar}
+            />
+            <View style={styles.welcomeInfo}>
+              <Text variant="titleMedium" style={styles.welcomeName}>
+                Xin chào, {user?.username ?? "—"}
+              </Text>
+              <Chip
+                icon={
+                  user?.status === "ACTIVE" ? "check-circle" : "close-circle"
+                }
+                mode="outlined"
+                compact
+                style={
+                  user?.status === "ACTIVE"
+                    ? styles.chipActive
+                    : styles.chipInactive
+                }
+                textStyle={
+                  user?.status === "ACTIVE"
+                    ? styles.chipActiveText
+                    : styles.chipInactiveText
+                }
+              >
+                {user?.status === "ACTIVE"
+                  ? "Đang hoạt động"
+                  : "Ngừng hoạt động"}
+              </Chip>
+            </View>
+          </View>
+        </Surface>
+
+        {/* ── Thao tác nhanh ── */}
+        <Text variant="titleSmall" style={styles.sectionLabel}>
+          Thao tác nhanh
+        </Text>
+        <View style={styles.quickActions}>
+          <Surface style={styles.actionCard} elevation={1}>
+            <Button
+              icon="plus-circle-outline"
+              mode="contained"
+              onPress={() => push("/orders/create")}
+              style={styles.actionBtn}
+              contentStyle={styles.actionBtnContent}
+              labelStyle={styles.actionBtnLabel}
+            >
+              Đặt hàng mới
+            </Button>
+            <Text variant="bodySmall" style={styles.actionDesc}>
+              Chọn sản phẩm từ danh mục Bếp Trung Tâm
+            </Text>
+          </Surface>
+
+          <Surface style={styles.actionCard} elevation={1}>
+            <Button
+              icon="clipboard-list-outline"
+              mode="outlined"
+              onPress={() => push("/orders")}
+              style={styles.actionBtnOutlined}
+              contentStyle={styles.actionBtnContent}
+              labelStyle={styles.actionBtnLabelOutlined}
+            >
+              Lịch sử đơn hàng
+            </Button>
+            <Text variant="bodySmall" style={styles.actionDesc}>
+              Xem trạng thái và theo dõi đơn
+            </Text>
+          </Surface>
+        </View>
+
+        {/* ── Thông tin tài khoản ── */}
+        <Text variant="titleSmall" style={styles.sectionLabel}>
+          Thông tin tài khoản
+        </Text>
+        <Card style={styles.infoCard}>
+          <Card.Content style={styles.infoContent}>
             <List.Item
               title="Email"
               description={user?.email ?? "—"}
@@ -103,33 +169,9 @@ export default function StoreHomeScreen() {
             />
             <Divider />
             <List.Item
-              title="Trạng thái"
-              description={() => (
-                <Chip
-                  icon={
-                    user?.status === "ACTIVE" ? "check-circle" : "close-circle"
-                  }
-                  mode="outlined"
-                  compact
-                  style={
-                    user?.status === "ACTIVE"
-                      ? styles.chipActive
-                      : styles.chipInactive
-                  }
-                  textStyle={
-                    user?.status === "ACTIVE"
-                      ? styles.chipActiveText
-                      : styles.chipInactiveText
-                  }
-                >
-                  {user?.status === "ACTIVE"
-                    ? "Đang hoạt động"
-                    : "Ngừng hoạt động"}
-                </Chip>
-              )}
-              left={(props) => (
-                <List.Icon {...props} icon="shield-check-outline" />
-              )}
+              title="Vai trò"
+              description={user?.role ?? "—"}
+              left={(props) => <List.Icon {...props} icon="badge-account-outline" />}
             />
             <Divider />
             <List.Item
@@ -147,34 +189,6 @@ export default function StoreHomeScreen() {
             />
           </Card.Content>
         </Card>
-
-        {/* ── Quản lý Đơn hàng ── */}
-        <Card style={styles.card}>
-          <Card.Title
-            title="Quản lý Đơn hàng"
-            subtitle="Tạo đơn & Theo dõi vận chuyển"
-            left={(props) => <List.Icon {...props} icon="cart-outline" />}
-          />
-          <Card.Actions>
-            <Button mode="contained" icon="plus">
-              Đặt hàng mới
-            </Button>
-          </Card.Actions>
-        </Card>
-
-        {/* ── Quản lý Tồn kho ── */}
-        <Card style={styles.card}>
-          <Card.Title
-            title="Quản lý Tồn kho"
-            subtitle="Xem tồn kho & Chụp ảnh khiếu nại"
-            left={(props) => <List.Icon {...props} icon="warehouse" />}
-          />
-          <Card.Actions>
-            <Button mode="outlined" icon="package-variant">
-              Nhận hàng
-            </Button>
-          </Card.Actions>
-        </Card>
       </ScrollView>
     </View>
   );
@@ -182,24 +196,63 @@ export default function StoreHomeScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f5f5f5" },
-  loadingContainer: {
+  centered: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     gap: 12,
   },
   loadingText: { color: "#666", fontSize: 14 },
+  header: { backgroundColor: "#fff" },
+  headerTitle: { fontWeight: "700" },
   content: { flex: 1 },
-  scrollContent: { padding: 16, gap: 16, paddingBottom: 32 },
-  profileCard: { backgroundColor: "#fff", elevation: 2 },
-  avatar: { backgroundColor: "#6750A4" },
-  card: { backgroundColor: "#fff" },
-  chipActive: { borderColor: "#2E7D32", alignSelf: "flex-start", marginTop: 4 },
-  chipActiveText: { color: "#2E7D32" },
-  chipInactive: {
-    borderColor: "#C62828",
-    alignSelf: "flex-start",
-    marginTop: 4,
+  scrollContent: { padding: 16, gap: 12, paddingBottom: 32 },
+
+  welcomeCard: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 16,
   },
-  chipInactiveText: { color: "#C62828" },
+  welcomeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+  },
+  avatar: { backgroundColor: "#E65100" },
+  welcomeInfo: { flex: 1, gap: 6 },
+  welcomeName: { fontWeight: "700" },
+  chipActive: { borderColor: "#2E7D32", alignSelf: "flex-start" },
+  chipActiveText: { color: "#2E7D32", fontSize: 11 },
+  chipInactive: { borderColor: "#C62828", alignSelf: "flex-start" },
+  chipInactiveText: { color: "#C62828", fontSize: 11 },
+
+  sectionLabel: {
+    fontWeight: "700",
+    color: "#555",
+    marginTop: 8,
+    marginLeft: 4,
+  },
+
+  quickActions: { gap: 10 },
+  actionCard: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 16,
+    gap: 8,
+  },
+  actionBtn: {
+    borderRadius: 10,
+    backgroundColor: "#E65100",
+  },
+  actionBtnOutlined: {
+    borderRadius: 10,
+    borderColor: "#E65100",
+  },
+  actionBtnContent: { paddingVertical: 4 },
+  actionBtnLabel: { fontWeight: "700", fontSize: 14 },
+  actionBtnLabelOutlined: { fontWeight: "700", fontSize: 14, color: "#E65100" },
+  actionDesc: { color: "#888", marginLeft: 4 },
+
+  infoCard: { backgroundColor: "#fff", borderRadius: 12 },
+  infoContent: { gap: 0 },
 });

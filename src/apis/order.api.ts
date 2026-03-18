@@ -1,18 +1,58 @@
-import apiClient from "./client";
 import type {
     ApproveOrderPayload,
     ApproveOrderResponse,
     CoordinatorOrderReview,
+    CreateOrderPayload,
     OrderDetail,
     OrderListQuery,
     OrderSummary,
     PaginatedResponse,
     RejectOrderPayload,
     RejectOrderResponse,
+    StoreOrder,
+    StoreOrderListQuery,
+    StoreOrderPaginatedResponse,
 } from "../types/order";
+import type { CatalogResponse, Product } from "../types/product";
+import apiClient from "./client";
+
+// ──── Store Staff APIs ────
+
+export const storeOrderApi = {
+    getCatalog: async (page = 1, limit = 50): Promise<CatalogResponse> => {
+        const response = await apiClient.get<unknown, CatalogResponse>(
+            "/orders/catalog",
+            { params: { page, limit, sortOrder: "DESC" } },
+        );
+        return response;
+    },
+
+    createOrder: async (payload: CreateOrderPayload): Promise<StoreOrder> => {
+        const response = await apiClient.post<unknown, StoreOrder>("/orders", payload);
+        return response;
+    },
+
+    getMyOrders: async (
+        params?: StoreOrderListQuery,
+    ): Promise<StoreOrderPaginatedResponse> => {
+        const response = await apiClient.get<unknown, StoreOrderPaginatedResponse>(
+            "/orders/my-store",
+            { params },
+        );
+        return response;
+    },
+
+    getOrderDetail: async (orderId: string): Promise<StoreOrder> => {
+        const response = await apiClient.get<unknown, StoreOrder>(
+            `/orders/${orderId}`,
+        );
+        return response;
+    },
+};
+
+// ──── Coordinator / Admin APIs ────
 
 export const orderApi = {
-    /** Danh sách đơn hàng (Coordinator/Manager/Admin) */
     list: async (query?: OrderListQuery): Promise<PaginatedResponse<OrderSummary>> => {
         const response = await apiClient.get<unknown, PaginatedResponse<OrderSummary>>(
             "/orders",
@@ -21,13 +61,11 @@ export const orderApi = {
         return response;
     },
 
-    /** Chi tiết đơn hàng */
     getById: async (orderId: string): Promise<OrderDetail> => {
         const response = await apiClient.get<unknown, OrderDetail>(`/orders/${orderId}`);
         return response;
     },
 
-    /** Coordinator: xem đơn + so sánh kho */
     getCoordinatorReview: async (orderId: string): Promise<CoordinatorOrderReview> => {
         const response = await apiClient.get<unknown, CoordinatorOrderReview>(
             `/orders/coordinator/${orderId}/review`,
@@ -35,7 +73,6 @@ export const orderApi = {
         return response;
     },
 
-    /** Coordinator: duyệt đơn (partial fulfillment) */
     approveCoordinator: async (
         orderId: string,
         payload: ApproveOrderPayload = {},
@@ -47,7 +84,6 @@ export const orderApi = {
         return response;
     },
 
-    /** Coordinator: từ chối đơn */
     rejectCoordinator: async (
         orderId: string,
         payload: RejectOrderPayload,

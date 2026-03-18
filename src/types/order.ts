@@ -1,12 +1,13 @@
 export type OrderStatus =
     | "pending"
     | "approved"
-    | "rejected"
-    | "cancelled"
-    | "picking"
-    | "delivering"
+    | "shipping"
     | "completed"
-    | "claimed";
+    | "cancelled"
+    | "rejected"
+    | "claimed"
+    | "picking"
+    | "delivering";
 
 export type SortOrder = "ASC" | "DESC";
 
@@ -30,8 +31,8 @@ export interface OrderListQuery {
     status?: OrderStatus;
     search?: string;
     storeId?: string;
-    fromDate?: string; // YYYY-MM-DD
-    toDate?: string; // YYYY-MM-DD
+    fromDate?: string;
+    toDate?: string;
 }
 
 export interface OrderSummary {
@@ -54,6 +55,47 @@ export interface OrderDetail {
         productName?: string;
         unit?: string;
     }>;
+}
+
+// ──── Store Ordering Types ────
+
+export interface CreateOrderItem {
+    productId: number;
+    quantity: number;
+}
+
+export interface CreateOrderPayload {
+    deliveryDate: string;
+    items: CreateOrderItem[];
+}
+
+export interface StoreOrderItem {
+    productId: string;
+    quantityRequested: number;
+    quantityApproved?: number;
+    productName?: string;
+    unit?: string;
+}
+
+export interface StoreOrder {
+    id: string;
+    orderCode: string;
+    status: OrderStatus;
+    createdAt: string;
+    items: StoreOrderItem[];
+    totalItems: number;
+    storeId: string;
+}
+
+export interface StoreOrderListQuery {
+    page?: number;
+    limit?: number;
+    status?: OrderStatus;
+}
+
+export interface StoreOrderPaginatedResponse {
+    items: StoreOrder[];
+    meta: PaginatedMeta;
 }
 
 export interface CoordinatorReviewItem {
