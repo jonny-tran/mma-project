@@ -1,8 +1,12 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, Pressable } from 'react-native';
+import { useEffect, useMemo, useState } from 'react';
+import { FontAwesome } from '@expo/vector-icons';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import OrdersTable from '../../components/OrdersTable';
+import { useRouter } from 'expo-router';
 
 export default function supply() {
+    const router = useRouter();
+
     const [ORDERs, setORDERs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -88,11 +92,16 @@ export default function supply() {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <Text style={styles.title}>Quản lý Đơn hàng</Text>
-                <Text style={styles.subtitle}>
-                    Phê duyệt, từ chối và theo dõi trạng thái đơn hàng cho vai trò điều
-                    phối viên.
-                </Text>
+                <Pressable onPress={() => router.navigate('/')} style={styles.backBtn}>
+                    <FontAwesome name='chevron-left' size={24} color='#999' />
+                </Pressable>
+                <View>
+                    <Text style={styles.title}>Quản lý Đơn hàng</Text>
+                    <Text style={styles.subtitle}>
+                        Phê duyệt, từ chối và theo dõi trạng thái đơn hàng cho vai trò điều
+                        phối viên.
+                    </Text>
+                </View>
             </View>
 
             <View>
@@ -143,6 +152,16 @@ const styles = StyleSheet.create({
     container: {
         padding: 16,
         gap: 16,
+    },
+
+    header: {
+        flexDirection: 'row',
+        // gap: 8,
+    },
+
+    backBtn: {
+        marginTop: 4,
+        paddingRight: 8,
     },
 
     title: {
