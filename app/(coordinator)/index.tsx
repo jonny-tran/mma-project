@@ -1,5 +1,6 @@
 import { authApi } from "@/src/apis/auth.api";
 import { useAuthStore } from "@/src/store/authStore";
+import { useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import {
@@ -16,6 +17,7 @@ import {
 import Toast from "react-native-toast-message";
 
 export default function CoordinatorHomeScreen() {
+  const router = useRouter();
   const { user, logout, updateUser } = useAuthStore();
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
 
@@ -158,7 +160,11 @@ export default function CoordinatorHomeScreen() {
             )}
           />
           <Card.Actions>
-            <Button mode="contained" icon="format-list-bulleted">
+            <Button 
+              mode="contained" 
+              icon="format-list-bulleted"
+              onPress={() => router.push("/supply")}
+            >
               Xem DS Đơn
             </Button>
           </Card.Actions>
