@@ -113,10 +113,21 @@ apiClient.interceptors.response.use(
     }
 
     // ── Xử lý lỗi chung (không phải 401) ──
-    const errorMessage =
-      (error.response?.data as { message?: string })?.message ||
-      error.message ||
-      "Lỗi kết nối Server";
+    const data = error.response?.data as
+      | { message?: string | string[]; errors?: string[] }
+      | undefined;
+
+    let errorMessage = "Lỗi kết nối Server";
+    if (data?.message) {
+      errorMessage = Array.isArray(data.message)
+        ? data.message.join(", ")
+        : data.message;
+    } else if (data?.errors && data.errors.length > 0) {
+      errorMessage = data.errors.join(", ");
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+
     return Promise.reject(new Error(errorMessage));
   },
 );

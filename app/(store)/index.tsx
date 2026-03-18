@@ -154,7 +154,56 @@ export default function StoreHomeScreen() {
               Xem trạng thái và theo dõi đơn
             </Text>
           </Surface>
+
+          <Surface style={styles.actionCard} elevation={1}>
+            <Button
+              icon="truck-delivery-outline"
+              mode="outlined"
+              onPress={() => push("/shipments" as any)}
+              style={styles.shipmentBtnOutlined}
+              contentStyle={styles.actionBtnContent}
+              labelStyle={styles.shipmentBtnLabel}
+            >
+              Nhận hàng vận chuyển
+            </Button>
+            <Text variant="bodySmall" style={styles.actionDesc}>
+              Kiểm đếm và báo cáo sai lệch
+            </Text>
+          </Surface>
+
+          <Surface style={styles.actionCard} elevation={1}>
+            <Button
+              icon="warehouse"
+              mode="outlined"
+              onPress={() => push("/inventory" as any)}
+              style={styles.actionBtnOutlined}
+              contentStyle={styles.actionBtnContent}
+              labelStyle={styles.actionBtnLabelOutlined}
+            >
+              Kho hàng
+            </Button>
+            <Text variant="bodySmall" style={styles.actionDesc}>
+              Xem tồn kho và lịch sử xuất nhập
+            </Text>
+          </Surface>
+
+          <Surface style={styles.actionCard} elevation={1}>
+            <Button
+              icon="file-document-edit-outline"
+              mode="outlined"
+              onPress={() => push("/claims" as any)}
+              style={styles.actionBtnOutlined}
+              contentStyle={styles.actionBtnContent}
+              labelStyle={styles.actionBtnLabelOutlined}
+            >
+              Khiếu nại
+            </Button>
+            <Text variant="bodySmall" style={styles.actionDesc}>
+              Theo dõi & tạo khiếu nại sai lệch
+            </Text>
+          </Surface>
         </View>
+
 
         {/* ── Thông tin tài khoản ── */}
         <Text variant="titleSmall" style={styles.sectionLabel}>
@@ -251,6 +300,12 @@ const styles = StyleSheet.create({
   actionBtnContent: { paddingVertical: 4 },
   actionBtnLabel: { fontWeight: "700", fontSize: 14 },
   actionBtnLabelOutlined: { fontWeight: "700", fontSize: 14, color: "#E65100" },
+  shipmentBtnOutlined: {
+    borderRadius: 10,
+    borderColor: "#E65100",
+    backgroundColor: "#FFF3E0",
+  },
+  shipmentBtnLabel: { fontWeight: "700", fontSize: 14, color: "#E65100" },
   actionDesc: { color: "#888", marginLeft: 4 },
 
   infoCard: { backgroundColor: "#fff", borderRadius: 12 },

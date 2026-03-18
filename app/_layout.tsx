@@ -3,6 +3,7 @@ import {
   DefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { Stack, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -14,6 +15,12 @@ import Toast from "react-native-toast-message";
 import { useColorScheme } from "@/components/useColorScheme";
 import { useAuthStore } from "@/src/store/authStore";
 import { USER_ROLES } from "@/src/types/user";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: 1, staleTime: 30_000 },
+  },
+});
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -86,16 +93,18 @@ function RootLayoutNav() {
   }, [isAuthenticated, user, segments]);
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <PaperProvider>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(auth)" />
-          <Stack.Screen name="(store)" />
-          <Stack.Screen name="(kitchen)" />
-          <Stack.Screen name="(coordinator)" />
-        </Stack>
-        <Toast />
-      </PaperProvider>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        <PaperProvider>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(auth)" />
+            <Stack.Screen name="(store)" />
+            <Stack.Screen name="(kitchen)" />
+            <Stack.Screen name="(coordinator)" />
+          </Stack>
+          <Toast />
+        </PaperProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }

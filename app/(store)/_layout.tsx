@@ -25,7 +25,11 @@ export default function StoreLayout() {
         options={{
           title: "Trang chủ",
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="home-outline" size={size} color={color} />
+            <MaterialCommunityIcons
+              name="home-outline"
+              size={size}
+              color={color}
+            />
           ),
         }}
       />
@@ -40,6 +44,24 @@ export default function StoreLayout() {
               color={color}
             />
           ),
+        }}
+      />
+      <Tabs.Screen
+        name="shipments"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="inventory"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="claims"
+        options={{
+          href: null,
         }}
       />
     </Tabs>
