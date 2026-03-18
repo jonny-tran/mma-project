@@ -1,24 +1,23 @@
 import { authApi } from "@/src/apis/auth.api";
-import { useRouter } from "expo-router";
-import { useAuthStore } from "@/src/store/authStore";
 import { pickingTasksApi } from "@/src/apis/picking-tasks.api";
+import { useAuthStore } from "@/src/store/authStore";
+import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
-import { useFocusEffect } from "expo-router";
 import {
+  Dimensions,
   ScrollView,
   StyleSheet,
-  View,
-  Dimensions,
   TouchableOpacity,
+  View,
 } from "react-native";
 import {
   ActivityIndicator,
   Appbar,
   Avatar,
   Card,
-  Text,
-  Surface,
   Icon,
+  Surface,
+  Text,
 } from "react-native-paper";
 import Toast from "react-native-toast-message";
 
@@ -28,12 +27,12 @@ export default function KitchenHomeScreen() {
   const router = useRouter();
   const { user, logout, updateUser } = useAuthStore();
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
-  
+
   const [stats, setStats] = useState({
     pending: 0,
     picking: 0,
     completed: 0,
-    alert: 0
+    alert: 0,
   });
 
   // Fetch profile
@@ -57,19 +56,19 @@ export default function KitchenHomeScreen() {
     try {
       const data = await pickingTasksApi.getPickingTasks();
       const tasks = data?.items || [];
-      
+
       let pendingCount = 0;
       let pickingCount = 0;
       let completedCount = 0;
-      
-      tasks.forEach(t => {
+
+      tasks.forEach((t) => {
         const s = t.status?.toUpperCase();
         if (s === "PENDING" || s === "APPROVED") pendingCount++;
         if (s === "PICKING" || s === "IN_PROGRESS") pickingCount++;
         if (s === "COMPLETED" || s === "DONE") completedCount++;
       });
-      
-      setStats(prev => ({
+
+      setStats((prev) => ({
         ...prev,
         pending: pendingCount,
         picking: pickingCount,
@@ -83,7 +82,7 @@ export default function KitchenHomeScreen() {
   useFocusEffect(
     useCallback(() => {
       fetchDashboardData();
-    }, [])
+    }, []),
   );
 
   // Logout
@@ -122,7 +121,7 @@ export default function KitchenHomeScreen() {
     title: string,
     value: string,
     icon: string,
-    color: string
+    color: string,
   ) => (
     <Surface
       style={[styles.statCard, { borderLeftColor: color, borderLeftWidth: 4 }]}
@@ -143,7 +142,7 @@ export default function KitchenHomeScreen() {
     subtitle: string,
     icon: string,
     color: string,
-    onPress: () => void
+    onPress: () => void,
   ) => (
     <TouchableOpacity
       activeOpacity={0.8}
@@ -217,15 +216,20 @@ export default function KitchenHomeScreen() {
             "Đơn chờ xử lý",
             stats.pending.toString(),
             "clipboard-text-clock",
-            "#F57C00"
+            "#F57C00",
           )}
           {renderStatCard(
             "Đang nhặt hàng",
             stats.picking.toString(),
             "pot-steam",
-            "#0288D1"
+            "#0288D1",
           )}
-          {renderStatCard("Đã hoàn thành", stats.completed.toString(), "check-decagram", "#388E3C")}
+          {renderStatCard(
+            "Đã hoàn thành",
+            stats.completed.toString(),
+            "check-decagram",
+            "#388E3C",
+          )}
           {renderStatCard("Cảnh báo tồn", "3", "alert", "#D32F2F")}
         </ScrollView>
 
@@ -237,30 +241,28 @@ export default function KitchenHomeScreen() {
             "Tiếp nhận & xử lý đơn từ chi nhánh",
             "clipboard-list",
             "#F57C00",
-            () => router.push("/(kitchen)/orders" as any)
+            () => router.push("/(kitchen)/orders" as any),
           )}
           {renderActionCard(
             "Kế Hoạch Sản Xuất",
             "Lập lệnh sản xuất & định mức",
             "factory",
             "#0288D1",
-            () => router.push("/(kitchen)/production" as any)
+            () => router.push("/(kitchen)/production" as any),
           )}
           {renderActionCard(
             "Tiến Độ & Xuất Kho",
             "Cập nhật tiến độ & giao hàng",
             "truck-fast",
             "#388E3C",
-            () =>
-              Toast.show({ type: "info", text1: "Tính năng đang phát triển" })
+            () => router.push("/(kitchen)/shipping" as any),
           )}
           {renderActionCard(
             "Kho & Nguyên Liệu",
             "Quản lý lô, hạn sử dụng, FEFO",
             "package-variant-closed",
             "#7B1FA2",
-            () =>
-              Toast.show({ type: "info", text1: "Tính năng đang phát triển" })
+            () => router.push("/(kitchen)/inventory" as any),
           )}
         </View>
 
