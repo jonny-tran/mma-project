@@ -1,11 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { FlatList, Pressable, StyleSheet, View } from "react-native";
-import {
-  ActivityIndicator,
-  Card,
-  SegmentedButtons,
-  Text,
-} from "react-native-paper";
+import { ActivityIndicator, Card, Text } from "react-native-paper";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import Toast from "react-native-toast-message";
 import { storeOrderApi } from "@/src/apis/order.api";
@@ -20,6 +16,16 @@ const dateFormatter = new Intl.DateTimeFormat("vi-VN", {
   hour: "2-digit",
   minute: "2-digit",
 });
+
+const deliveryDateFormatter = new Intl.DateTimeFormat("vi-VN", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+});
+
+function shortId(id: string) {
+  return `#${id.slice(0, 8).toUpperCase()}`;
+}
 
 export default function OrderHistoryScreen() {
   const { push } = useRouter();
@@ -46,23 +52,21 @@ export default function OrderHistoryScreen() {
         }
 
         const data = await storeOrderApi.getMyOrders(params);
-        setOrders((prev) => (replace ? data.items : [...prev, ...data.items]));
+        setOrders((prev) =>
+          replace ? data.items : [...prev, ...data.items]
+        );
         setTotalPages(data.meta.totalPages);
         setPage(pageNum);
       } catch (error) {
         const message =
           error instanceof Error ? error.message : "Không thể tải đơn hàng";
-        Toast.show({
-          type: "error",
-          text1: "Lỗi",
-          text2: message,
-        });
+        Toast.show({ type: "error", text1: "Lỗi", text2: message });
       } finally {
         setLoading(false);
         setLoadingMore(false);
       }
     },
-    [statusFilter],
+    [statusFilter]
   );
 
   useEffect(() => {
@@ -75,58 +79,73 @@ export default function OrderHistoryScreen() {
     }
   }, [loadingMore, page, totalPages, fetchOrders]);
 
-  const handleStatusChange = useCallback((value: string) => {
-    setStatusFilter(value);
-  }, []);
-
   const renderItem = useCallback(
     ({ item }: { item: StoreOrder }) => (
       <Pressable onPress={() => push(`/orders/${item.id}`)}>
-        <Card style={styles.card} mode="elevated">
+        <Card style={styles.card}>
           <Card.Content style={styles.cardContent}>
-            <View style={styles.cardHeader}>
-              <Text variant="titleSmall" style={styles.orderCode}>
-                {item.orderCode}
-              </Text>
+            <View style={styles.cardTop}>
+              <View style={styles.iconWrap}>
+                <MaterialCommunityIcons
+                  name="clipboard-text-outline"
+                  size={22}
+                  color="#E65100"
+                />
+              </View>
+              <View style={styles.cardInfo}>
+                <Text variant="titleSmall" style={styles.orderId}>
+                  {shortId(item.id)}
+                </Text>
+                <Text variant="bodySmall" style={styles.storeName} numberOfLines={1}>
+                  {item.store?.name ?? "—"}
+                </Text>
+                <Text variant="bodySmall" style={styles.dateText}>
+                  Tạo: {dateFormatter.format(new Date(item.createdAt))}
+                </Text>
+              </View>
               <OrderStatusBadge status={item.status} />
             </View>
-            <View style={styles.cardMeta}>
-              <Text variant="bodySmall" style={styles.metaText}>
-                {dateFormatter.format(new Date(item.createdAt))}
-              </Text>
-              <Text variant="bodySmall" style={styles.metaText}>
-                {item.totalItems} sản phẩm
+            <View style={styles.cardBottom}>
+              <Text variant="bodySmall" style={styles.deliveryText}>
+                Giao dự kiến: {deliveryDateFormatter.format(new Date(item.deliveryDate))}
               </Text>
             </View>
           </Card.Content>
         </Card>
       </Pressable>
     ),
-    [push],
+    [push]
   );
 
   const keyExtractor = useCallback((item: StoreOrder) => item.id, []);
 
-  const segmentButtons = STATUS_FILTER_OPTIONS.map((opt) => ({
-    value: opt.value,
-    label: opt.label,
-  }));
-
   return (
     <View style={styles.container}>
-      <View style={styles.filterContainer}>
-        <SegmentedButtons
-          value={statusFilter}
-          onValueChange={handleStatusChange}
-          buttons={segmentButtons}
-          density="small"
-          style={styles.segmented}
-        />
+      <View style={styles.filterRow}>
+        {STATUS_FILTER_OPTIONS.map((opt) => {
+          const active = statusFilter === opt.value;
+          return (
+            <Pressable
+              key={opt.value}
+              onPress={() => setStatusFilter(opt.value)}
+              style={[styles.filterTab, active && styles.filterTabActive]}
+            >
+              <Text
+                style={[
+                  styles.filterTabText,
+                  active && styles.filterTabTextActive,
+                ]}
+              >
+                {opt.label}
+              </Text>
+            </Pressable>
+          );
+        })}
       </View>
 
       {loading ? (
         <View style={styles.centered}>
-          <ActivityIndicator animating size="large" />
+          <ActivityIndicator animating size="large" color="#E65100" />
           <Text style={styles.loadingText}>Đang tải...</Text>
         </View>
       ) : (
@@ -138,16 +157,19 @@ export default function OrderHistoryScreen() {
           onEndReached={handleEndReached}
           onEndReachedThreshold={0.3}
           ListEmptyComponent={
-            <View style={styles.centered}>
-              <Text variant="bodyLarge" style={styles.emptyText}>
-                Chưa có đơn hàng nào
-              </Text>
+            <View style={styles.emptyContainer}>
+              <MaterialCommunityIcons
+                name="clipboard-text-outline"
+                size={64}
+                color="#ddd"
+              />
+              <Text style={styles.emptyText}>Chưa có đơn hàng nào</Text>
             </View>
           }
           ListFooterComponent={
             loadingMore ? (
               <View style={styles.footer}>
-                <ActivityIndicator animating size="small" />
+                <ActivityIndicator animating size="small" color="#E65100" />
               </View>
             ) : null
           }
@@ -158,58 +180,61 @@ export default function OrderHistoryScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f5f5f5",
+  container: { flex: 1, backgroundColor: "#F5F5F5" },
+  filterRow: {
+    flexDirection: "row",
+    gap: 8,
+    padding: 12,
+    paddingBottom: 10,
+    backgroundColor: "#fff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
+    flexWrap: "wrap",
   },
+  filterTab: {
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 18,
+    backgroundColor: "#F5F5F5",
+  },
+  filterTabActive: { backgroundColor: "#E65100" },
+  filterTabText: { color: "#666", fontSize: 12, fontWeight: "500" },
+  filterTabTextActive: { color: "#fff", fontWeight: "700" },
   centered: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    gap: 8,
-    padding: 32,
+    gap: 12,
   },
-  loadingText: {
-    color: "#666",
-  },
-  filterContainer: {
-    padding: 12,
-    backgroundColor: "#fff",
-  },
-  segmented: {
-    flexWrap: "wrap",
-  },
-  listContent: {
-    padding: 12,
-    gap: 8,
-    paddingBottom: 32,
-  },
-  card: {
-    backgroundColor: "#fff",
-  },
-  cardContent: {
-    gap: 8,
-  },
-  cardHeader: {
+  loadingText: { color: "#888", fontSize: 14 },
+  listContent: { padding: 12, gap: 10, paddingBottom: 32 },
+  card: { borderRadius: 14, backgroundColor: "#fff", elevation: 1 },
+  cardContent: { gap: 10 },
+  cardTop: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 12,
+  },
+  iconWrap: {
+    width: 42,
+    height: 42,
+    borderRadius: 12,
+    backgroundColor: "#FFF3E0",
+    justifyContent: "center",
     alignItems: "center",
   },
-  orderCode: {
-    fontWeight: "700",
-  },
-  cardMeta: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  metaText: {
-    color: "#888",
-  },
-  emptyText: {
-    color: "#999",
-  },
-  footer: {
-    padding: 16,
+  cardInfo: { flex: 1, minWidth: 0 },
+  orderId: { fontWeight: "700", color: "#1a1a1a", fontSize: 14 },
+  storeName: { color: "#555", marginTop: 2, fontSize: 13 },
+  dateText: { color: "#888", marginTop: 2, fontSize: 12 },
+  cardBottom: { marginLeft: 54 },
+  deliveryText: { color: "#666", fontSize: 12 },
+  emptyContainer: {
+    justifyContent: "center",
     alignItems: "center",
+    marginTop: 80,
+    gap: 12,
   },
+  emptyText: { color: "#999", fontSize: 14 },
+  footer: { padding: 16, alignItems: "center" },
 });

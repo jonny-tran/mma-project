@@ -1,21 +1,21 @@
 export type OrderStatus =
     | "pending"
     | "approved"
-    | "shipping"
-    | "completed"
-    | "cancelled"
     | "rejected"
-    | "claimed"
+    | "cancelled"
     | "picking"
-    | "delivering";
+    | "delivering"
+    | "completed"
+    | "claimed";
 
 export type SortOrder = "ASC" | "DESC";
 
 export interface PaginatedMeta {
-    page: number;
-    limit: number;
-    total: number;
+    totalItems: number;
+    itemCount: number;
+    itemsPerPage: number;
     totalPages: number;
+    currentPage: number;
 }
 
 export interface PaginatedResponse<T> {
@@ -69,22 +69,42 @@ export interface CreateOrderPayload {
     items: CreateOrderItem[];
 }
 
+export interface StoreOrderProduct {
+    id: number;
+    sku: string;
+    name: string;
+    imageUrl?: string;
+}
+
 export interface StoreOrderItem {
-    productId: string;
-    quantityRequested: number;
-    quantityApproved?: number;
-    productName?: string;
-    unit?: string;
+    id: number;
+    orderId: string;
+    productId: number;
+    quantityRequested: string;
+    quantityApproved: string | null;
+    product: StoreOrderProduct;
+}
+
+export interface StoreInfo {
+    id: string;
+    name: string;
+    address: string;
+    managerName: string;
+    phone: string;
 }
 
 export interface StoreOrder {
     id: string;
-    orderCode: string;
-    status: OrderStatus;
-    createdAt: string;
-    items: StoreOrderItem[];
-    totalItems: number;
     storeId: string;
+    status: OrderStatus;
+    totalAmount?: string;
+    deliveryDate: string;
+    priority: string;
+    note: string | null;
+    createdAt: string;
+    updatedAt: string;
+    store?: StoreInfo;
+    items?: StoreOrderItem[];
 }
 
 export interface StoreOrderListQuery {

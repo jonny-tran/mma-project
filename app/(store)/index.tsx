@@ -1,25 +1,60 @@
 import { authApi } from "@/src/apis/auth.api";
 import { useAuthStore } from "@/src/store/authStore";
-import React, { useCallback, useEffect, useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  ScrollView,
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  Platform,
+} from "react-native";
 import {
   ActivityIndicator,
-  Appbar,
   Avatar,
-  Button,
-  Card,
-  Chip,
-  Divider,
-  List,
   Surface,
   Text,
 } from "react-native-paper";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import Toast from "react-native-toast-message";
+
+const QUICK_ACTIONS = [
+  {
+    icon: "plus-circle" as const,
+    label: "Đặt hàng",
+    desc: "Tạo đơn hàng mới",
+    route: "/orders/create",
+    color: "#E65100",
+    bg: "#FFF3E0",
+  },
+  {
+    icon: "clipboard-text-clock" as const,
+    label: "Lịch sử",
+    desc: "Xem đơn hàng",
+    route: "/orders",
+    color: "#1565C0",
+    bg: "#E3F2FD",
+  },
+  {
+    icon: "warehouse" as const,
+    label: "Kho hàng",
+    desc: "Tồn kho & giao dịch",
+    route: "/inventory",
+    color: "#2E7D32",
+    bg: "#E8F5E9",
+  },
+  {
+    icon: "file-document-edit" as const,
+    label: "Khiếu nại",
+    desc: "Tạo & theo dõi",
+    route: "/claims",
+    color: "#6A1B9A",
+    bg: "#F3E5F5",
+  },
+];
 
 export default function StoreHomeScreen() {
   const { push } = useRouter();
-  const { user, logout, updateUser } = useAuthStore();
+  const { user, updateUser } = useAuthStore();
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
 
   useEffect(() => {
@@ -28,8 +63,8 @@ export default function StoreHomeScreen() {
         setIsLoadingProfile(true);
         const profile = await authApi.getMe();
         updateUser(profile);
-      } catch (error) {
-        console.warn("Lấy thông tin profile thất bại:", error);
+      } catch {
+        /* ignore */
       } finally {
         setIsLoadingProfile(false);
       }
@@ -37,277 +72,193 @@ export default function StoreHomeScreen() {
     fetchProfile();
   }, []);
 
-  const handleLogout = useCallback(async () => {
-    try {
-      await logout();
-      Toast.show({
-        type: "success",
-        text1: "Đăng xuất thành công",
-      });
-    } catch {
-      Toast.show({
-        type: "error",
-        text1: "Đăng xuất thất bại",
-        text2: "Vui lòng thử lại.",
-      });
-    }
-  }, [logout]);
-
   if (isLoadingProfile) {
     return (
       <View style={styles.container}>
-        <Appbar.Header elevated>
-          <Appbar.Content title="Cửa hàng Franchise" />
-        </Appbar.Header>
+        <View style={styles.headerBar}>
+          <Text style={styles.headerTitle}>Cửa hàng</Text>
+        </View>
         <View style={styles.centered}>
-          <ActivityIndicator animating size="large" />
-          <Text style={styles.loadingText}>Đang tải thông tin...</Text>
+          <ActivityIndicator animating size="large" color="#E65100" />
+          <Text style={styles.loadingText}>Đang tải...</Text>
         </View>
       </View>
     );
   }
 
+  const greeting = getGreeting();
+
   return (
     <View style={styles.container}>
-      <Appbar.Header elevated style={styles.header}>
-        <Appbar.Content
-          title="Cửa hàng Franchise"
-          titleStyle={styles.headerTitle}
-        />
-        <Appbar.Action icon="logout" onPress={handleLogout} />
-      </Appbar.Header>
+      {/* Header */}
+      <View style={styles.headerBar}>
+        <View style={styles.headerLeft}>
+          <Text style={styles.headerGreeting}>{greeting}</Text>
+          <Text style={styles.headerName}>{user?.username ?? "—"}</Text>
+        </View>
+        <TouchableOpacity
+          onPress={() => push("/profile" as any)}
+          activeOpacity={0.7}
+        >
+          <Avatar.Icon size={42} icon="account" style={styles.headerAvatar} />
+        </TouchableOpacity>
+      </View>
 
       <ScrollView
-        style={styles.content}
+        style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
       >
-        {/* ── Chào mừng ── */}
-        <Surface style={styles.welcomeCard} elevation={2}>
-          <View style={styles.welcomeRow}>
-            <Avatar.Icon
-              size={52}
-              icon="account-circle"
-              style={styles.avatar}
-            />
-            <View style={styles.welcomeInfo}>
-              <Text variant="titleMedium" style={styles.welcomeName}>
-                Xin chào, {user?.username ?? "—"}
-              </Text>
-              <Chip
-                icon={
-                  user?.status === "ACTIVE" ? "check-circle" : "close-circle"
-                }
-                mode="outlined"
-                compact
-                style={
-                  user?.status === "ACTIVE"
-                    ? styles.chipActive
-                    : styles.chipInactive
-                }
-                textStyle={
-                  user?.status === "ACTIVE"
-                    ? styles.chipActiveText
-                    : styles.chipInactiveText
-                }
-              >
-                {user?.status === "ACTIVE"
-                  ? "Đang hoạt động"
-                  : "Ngừng hoạt động"}
-              </Chip>
+        {/* Nhận hàng - Hero Card */}
+        <TouchableOpacity
+          activeOpacity={0.85}
+          onPress={() => push("/shipments" as any)}
+        >
+          <Surface style={styles.heroCard} elevation={2}>
+            <View style={styles.heroLeft}>
+              <View style={styles.heroIconWrap}>
+                <MaterialCommunityIcons
+                  name="truck-delivery"
+                  size={28}
+                  color="#fff"
+                />
+              </View>
+              <View style={styles.heroTextWrap}>
+                <Text style={styles.heroTitle}>Nhận hàng vận chuyển</Text>
+                <Text style={styles.heroDesc}>
+                  Kiểm đếm, xác nhận & báo cáo sai lệch
+                </Text>
+              </View>
             </View>
-          </View>
-        </Surface>
-
-        {/* ── Thao tác nhanh ── */}
-        <Text variant="titleSmall" style={styles.sectionLabel}>
-          Thao tác nhanh
-        </Text>
-        <View style={styles.quickActions}>
-          <Surface style={styles.actionCard} elevation={1}>
-            <Button
-              icon="plus-circle-outline"
-              mode="contained"
-              onPress={() => push("/orders/create")}
-              style={styles.actionBtn}
-              contentStyle={styles.actionBtnContent}
-              labelStyle={styles.actionBtnLabel}
-            >
-              Đặt hàng mới
-            </Button>
-            <Text variant="bodySmall" style={styles.actionDesc}>
-              Chọn sản phẩm từ danh mục Bếp Trung Tâm
-            </Text>
+            <MaterialCommunityIcons
+              name="chevron-right"
+              size={24}
+              color="#E65100"
+            />
           </Surface>
+        </TouchableOpacity>
 
-          <Surface style={styles.actionCard} elevation={1}>
-            <Button
-              icon="clipboard-list-outline"
-              mode="outlined"
-              onPress={() => push("/orders")}
-              style={styles.actionBtnOutlined}
-              contentStyle={styles.actionBtnContent}
-              labelStyle={styles.actionBtnLabelOutlined}
+        {/* Quick Actions Grid */}
+        <Text style={styles.sectionTitle}>Thao tác nhanh</Text>
+        <View style={styles.grid}>
+          {QUICK_ACTIONS.map((action) => (
+            <TouchableOpacity
+              key={action.label}
+              style={styles.gridItem}
+              activeOpacity={0.75}
+              onPress={() => push(action.route as any)}
             >
-              Lịch sử đơn hàng
-            </Button>
-            <Text variant="bodySmall" style={styles.actionDesc}>
-              Xem trạng thái và theo dõi đơn
-            </Text>
-          </Surface>
-
-          <Surface style={styles.actionCard} elevation={1}>
-            <Button
-              icon="truck-delivery-outline"
-              mode="outlined"
-              onPress={() => push("/shipments" as any)}
-              style={styles.shipmentBtnOutlined}
-              contentStyle={styles.actionBtnContent}
-              labelStyle={styles.shipmentBtnLabel}
-            >
-              Nhận hàng vận chuyển
-            </Button>
-            <Text variant="bodySmall" style={styles.actionDesc}>
-              Kiểm đếm và báo cáo sai lệch
-            </Text>
-          </Surface>
-
-          <Surface style={styles.actionCard} elevation={1}>
-            <Button
-              icon="warehouse"
-              mode="outlined"
-              onPress={() => push("/inventory" as any)}
-              style={styles.actionBtnOutlined}
-              contentStyle={styles.actionBtnContent}
-              labelStyle={styles.actionBtnLabelOutlined}
-            >
-              Kho hàng
-            </Button>
-            <Text variant="bodySmall" style={styles.actionDesc}>
-              Xem tồn kho và lịch sử xuất nhập
-            </Text>
-          </Surface>
-
-          <Surface style={styles.actionCard} elevation={1}>
-            <Button
-              icon="file-document-edit-outline"
-              mode="outlined"
-              onPress={() => push("/claims" as any)}
-              style={styles.actionBtnOutlined}
-              contentStyle={styles.actionBtnContent}
-              labelStyle={styles.actionBtnLabelOutlined}
-            >
-              Khiếu nại
-            </Button>
-            <Text variant="bodySmall" style={styles.actionDesc}>
-              Theo dõi & tạo khiếu nại sai lệch
-            </Text>
-          </Surface>
+              <Surface style={styles.gridCard} elevation={1}>
+                <View
+                  style={[styles.gridIconWrap, { backgroundColor: action.bg }]}
+                >
+                  <MaterialCommunityIcons
+                    name={action.icon}
+                    size={26}
+                    color={action.color}
+                  />
+                </View>
+                <Text style={styles.gridLabel}>{action.label}</Text>
+                <Text style={styles.gridDesc}>{action.desc}</Text>
+              </Surface>
+            </TouchableOpacity>
+          ))}
         </View>
-
-
-        {/* ── Thông tin tài khoản ── */}
-        <Text variant="titleSmall" style={styles.sectionLabel}>
-          Thông tin tài khoản
-        </Text>
-        <Card style={styles.infoCard}>
-          <Card.Content style={styles.infoContent}>
-            <List.Item
-              title="Email"
-              description={user?.email ?? "—"}
-              left={(props) => <List.Icon {...props} icon="email-outline" />}
-            />
-            <Divider />
-            <List.Item
-              title="Vai trò"
-              description={user?.role ?? "—"}
-              left={(props) => <List.Icon {...props} icon="badge-account-outline" />}
-            />
-            <Divider />
-            <List.Item
-              title="Ngày tạo tài khoản"
-              description={
-                user?.createdAt
-                  ? new Date(user.createdAt).toLocaleDateString("vi-VN", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                    })
-                  : "—"
-              }
-              left={(props) => <List.Icon {...props} icon="calendar-outline" />}
-            />
-          </Card.Content>
-        </Card>
       </ScrollView>
     </View>
   );
 }
 
+function getGreeting(): string {
+  const h = new Date().getHours();
+  if (h < 12) return "Chào buổi sáng,";
+  if (h < 18) return "Chào buổi chiều,";
+  return "Chào buổi tối,";
+}
+
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f5f5f5" },
+  container: { flex: 1, backgroundColor: "#F5F5F5" },
   centered: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     gap: 12,
   },
-  loadingText: { color: "#666", fontSize: 14 },
-  header: { backgroundColor: "#fff" },
-  headerTitle: { fontWeight: "700" },
-  content: { flex: 1 },
-  scrollContent: { padding: 16, gap: 12, paddingBottom: 32 },
+  loadingText: { color: "#888", fontSize: 14 },
 
-  welcomeCard: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 16,
-  },
-  welcomeRow: {
+  headerBar: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 14,
+    justifyContent: "space-between",
+    backgroundColor: "#fff",
+    paddingHorizontal: 20,
+    paddingTop: Platform.OS === "ios" ? 56 : 44,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
   },
-  avatar: { backgroundColor: "#E65100" },
-  welcomeInfo: { flex: 1, gap: 6 },
-  welcomeName: { fontWeight: "700" },
-  chipActive: { borderColor: "#2E7D32", alignSelf: "flex-start" },
-  chipActiveText: { color: "#2E7D32", fontSize: 11 },
-  chipInactive: { borderColor: "#C62828", alignSelf: "flex-start" },
-  chipInactiveText: { color: "#C62828", fontSize: 11 },
+  headerLeft: { flex: 1 },
+  headerGreeting: { fontSize: 13, color: "#888", fontWeight: "500" },
+  headerName: { fontSize: 20, fontWeight: "700", color: "#1a1a1a" },
+  headerTitle: { fontSize: 18, fontWeight: "700", color: "#1a1a1a" },
+  headerAvatar: { backgroundColor: "#E65100" },
 
-  sectionLabel: {
+  scroll: { flex: 1 },
+  scrollContent: { padding: 16, gap: 20, paddingBottom: 32 },
+
+  heroCard: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 18,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderLeftWidth: 4,
+    borderLeftColor: "#E65100",
+  },
+  heroLeft: { flexDirection: "row", alignItems: "center", flex: 1, gap: 14 },
+  heroIconWrap: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: "#E65100",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  heroTextWrap: { flex: 1 },
+  heroTitle: { fontSize: 15, fontWeight: "700", color: "#1a1a1a" },
+  heroDesc: { fontSize: 12, color: "#888", marginTop: 2 },
+
+  sectionTitle: {
+    fontSize: 15,
     fontWeight: "700",
     color: "#555",
-    marginTop: 8,
-    marginLeft: 4,
+    marginLeft: 2,
   },
 
-  quickActions: { gap: 10 },
-  actionCard: {
+  grid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+  },
+  gridItem: {
+    width: "47%",
+    flexGrow: 1,
+  },
+  gridCard: {
     backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
-    gap: 8,
+    borderRadius: 16,
+    padding: 18,
+    alignItems: "center",
+    gap: 10,
   },
-  actionBtn: {
-    borderRadius: 10,
-    backgroundColor: "#E65100",
+  gridIconWrap: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
   },
-  actionBtnOutlined: {
-    borderRadius: 10,
-    borderColor: "#E65100",
-  },
-  actionBtnContent: { paddingVertical: 4 },
-  actionBtnLabel: { fontWeight: "700", fontSize: 14 },
-  actionBtnLabelOutlined: { fontWeight: "700", fontSize: 14, color: "#E65100" },
-  shipmentBtnOutlined: {
-    borderRadius: 10,
-    borderColor: "#E65100",
-    backgroundColor: "#FFF3E0",
-  },
-  shipmentBtnLabel: { fontWeight: "700", fontSize: 14, color: "#E65100" },
-  actionDesc: { color: "#888", marginLeft: 4 },
-
-  infoCard: { backgroundColor: "#fff", borderRadius: 12 },
-  infoContent: { gap: 0 },
+  gridLabel: { fontSize: 14, fontWeight: "700", color: "#1a1a1a" },
+  gridDesc: { fontSize: 11, color: "#888", textAlign: "center" },
 });

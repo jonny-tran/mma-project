@@ -1,6 +1,7 @@
 import React, { memo, useCallback } from "react";
-import { Image, StyleSheet, View } from "react-native";
-import { Card, IconButton, Text } from "react-native-paper";
+import { Image, Platform, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Card, Text } from "react-native-paper";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useCartStore } from "@/src/store/useCartStore";
 import type { Product } from "@/src/types/product";
 
@@ -9,6 +10,17 @@ interface ProductCardProps {
 }
 
 const PLACEHOLDER_IMAGE = "https://placehold.co/120x120/e0e0e0/757575?text=No+Image";
+
+const CARD_SHADOW =
+  Platform.OS === "web"
+    ? { boxShadow: "0 2px 12px rgba(0,0,0,0.08)" }
+    : {
+        elevation: 2,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+      };
 
 function ProductCardInner({ product }: ProductCardProps) {
   const quantity = useCartStore((s) =>
@@ -31,7 +43,7 @@ function ProductCardInner({ product }: ProductCardProps) {
   }, [quantity, product.id, updateQuantity]);
 
   return (
-    <Card style={styles.card} mode="elevated">
+    <Card style={[styles.card, CARD_SHADOW]}>
       <View style={styles.row}>
         <Image
           source={{ uri: product.imageUrl || PLACEHOLDER_IMAGE }}
@@ -39,35 +51,39 @@ function ProductCardInner({ product }: ProductCardProps) {
           resizeMode="cover"
         />
         <View style={styles.info}>
-          <Text variant="labelSmall" style={styles.sku}>
-            {product.sku}
-          </Text>
-          <Text variant="titleSmall" numberOfLines={2}>
+          <Text variant="titleMedium" style={styles.productName} numberOfLines={2}>
             {product.name}
+          </Text>
+          <Text variant="bodySmall" style={styles.sku}>
+            {product.sku}
           </Text>
           <Text variant="bodySmall" style={styles.shelfLife}>
             HSD: {product.shelfLifeDays} ngày
           </Text>
         </View>
         <View style={styles.quantityControls}>
-          <IconButton
-            icon="minus"
-            mode="outlined"
-            size={18}
+          <TouchableOpacity
             onPress={handleDecrement}
             disabled={quantity === 0}
-            style={styles.iconBtn}
-          />
+            style={[styles.qtyBtn, styles.qtyBtnMinus, quantity === 0 && styles.qtyBtnDisabled]}
+            activeOpacity={0.7}
+          >
+            <MaterialCommunityIcons
+              name="minus"
+              size={20}
+              color={quantity === 0 ? "#bbb" : "#555"}
+            />
+          </TouchableOpacity>
           <Text variant="titleMedium" style={styles.quantityText}>
             {quantity}
           </Text>
-          <IconButton
-            icon="plus"
-            mode="contained"
-            size={18}
+          <TouchableOpacity
             onPress={handleIncrement}
-            style={styles.iconBtn}
-          />
+            style={[styles.qtyBtn, styles.qtyBtnPlus]}
+            activeOpacity={0.7}
+          >
+            <MaterialCommunityIcons name="plus" size={20} color="#fff" />
+          </TouchableOpacity>
         </View>
       </View>
     </Card>
@@ -79,42 +95,70 @@ export const ProductCard = memo(ProductCardInner);
 const styles = StyleSheet.create({
   card: {
     marginHorizontal: 16,
-    marginVertical: 4,
+    marginVertical: 6,
     backgroundColor: "#fff",
+    borderRadius: 16,
+    overflow: "hidden",
   },
   row: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 12,
-    gap: 12,
+    padding: 14,
+    gap: 14,
   },
   image: {
-    width: 72,
-    height: 72,
-    borderRadius: 8,
-    backgroundColor: "#f0f0f0",
+    width: 80,
+    height: 80,
+    borderRadius: 12,
+    backgroundColor: "#F5F5F5",
   },
   info: {
     flex: 1,
-    gap: 2,
+    minWidth: 0,
+    gap: 4,
+  },
+  productName: {
+    fontWeight: "700",
+    color: "#1a1a1a",
+    fontSize: 15,
   },
   sku: {
     color: "#888",
+    fontSize: 12,
   },
   shelfLife: {
     color: "#666",
-    marginTop: 2,
+    fontSize: 12,
   },
   quantityControls: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
+    gap: 8,
   },
-  iconBtn: {
-    margin: 0,
+  qtyBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  qtyBtnMinus: {
+    backgroundColor: "#F5F5F5",
+    borderWidth: 1,
+    borderColor: "#e0e0e0",
+  },
+  qtyBtnPlus: {
+    backgroundColor: "#E65100",
+  },
+  qtyBtnDisabled: {
+    backgroundColor: "#f5f5f5",
+    borderColor: "#eee",
   },
   quantityText: {
-    minWidth: 28,
+    minWidth: 32,
     textAlign: "center",
+    fontWeight: "700",
+    color: "#333",
+    fontSize: 16,
   },
 });

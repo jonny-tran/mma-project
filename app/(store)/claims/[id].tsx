@@ -2,14 +2,13 @@ import React from "react";
 import { View, StyleSheet, FlatList, Image } from "react-native";
 import {
   Text,
-  Appbar,
   Card,
   Chip,
   ActivityIndicator,
   Divider,
   Surface,
 } from "react-native-paper";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import { claimApi } from "@/src/apis/claim.api";
 
@@ -21,7 +20,6 @@ const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
 
 export default function ClaimDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const router = useRouter();
 
   const { data: claim, isLoading } = useQuery({
     queryKey: ["claim", id],
@@ -49,11 +47,6 @@ export default function ClaimDetailScreen() {
 
   return (
     <View style={styles.container}>
-      <Appbar.Header elevated style={styles.header}>
-        <Appbar.BackAction onPress={() => router.back()} />
-        <Appbar.Content title="Chi tiết khiếu nại" titleStyle={styles.headerTitle} />
-      </Appbar.Header>
-
       <FlatList
         data={claim.items}
         keyExtractor={(_, i) => i.toString()}
@@ -119,9 +112,7 @@ export default function ClaimDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f8f9fa" },
-  header: { backgroundColor: "#fff" },
-  headerTitle: { fontWeight: "700" },
+  container: { flex: 1, backgroundColor: "#F5F5F5" },
   centered: { flex: 1, justifyContent: "center", alignItems: "center" },
   infoCard: {
     padding: 16,
