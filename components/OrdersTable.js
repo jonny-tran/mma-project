@@ -1,6 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React from 'react';
 import {
     ActivityIndicator,
     FlatList,
@@ -57,10 +56,9 @@ export default function OrdersTable({
                             style={styles.viewBtn}
                             onPress={() =>
                                 router.push({
-                                    pathname: '/order-detail',
+                                    pathname: '/orderId',
                                     params: {
                                         orderId: order.id,
-                                        link: 'brand',
                                     },
                                 })
                             }

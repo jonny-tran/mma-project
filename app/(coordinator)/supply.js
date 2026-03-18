@@ -1,8 +1,12 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, Pressable } from 'react-native';
+import { FontAwesome } from '@expo/vector-icons';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useMemo, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import OrdersTable from '../../components/OrdersTable';
 
 export default function supply() {
+    const router = useRouter();
+
     const [ORDERs, setORDERs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -17,33 +21,40 @@ export default function supply() {
         );
     };
 
-    useEffect(() => {
-        const API_URL = process.env.EXPO_PUBLIC_API_URL;
-        // ==FIX==
-        // token
-        // fetch
-        const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkY2JmODk1NS0zMTZmLTQ5NzQtYmZmMC1kYzQ4ODI3N2Y2YTQiLCJlbWFpbCI6ImNvb3JkaW5hdG9yQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBwbHlfY29vcmRpbmF0b3IiLCJzdG9yZUlkIjpudWxsLCJpYXQiOjE3NzM2NzYyNTksImV4cCI6MTc3MzY3OTg1OX0.6Ow8b9bwDGX8aFLciNg_NI1OjIbYw5josQTJGi4QOyU';
+    useFocusEffect(
+        useCallback(() => {
+            console.log('Screen focused');
+            const API_URL = process.env.EXPO_PUBLIC_API_URL;
+            // ==FIX==
+            // token
+            // fetch
+            const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkY2JmODk1NS0zMTZmLTQ5NzQtYmZmMC1kYzQ4ODI3N2Y2YTQiLCJlbWFpbCI6ImNvb3JkaW5hdG9yQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBwbHlfY29vcmRpbmF0b3IiLCJzdG9yZUlkIjpudWxsLCJpYXQiOjE3NzM4MjE1MzMsImV4cCI6MTc3MzgyNTEzM30.2YSfBlZkzvBkRlaZ0h_GVxkagQ0bfEdCauTenwG_dug';
 
-        fetch(`${API_URL}/orders`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
-            },
-        })
-            .then((res) => res.json())
-            .then((json) => {
-                setORDERs(json?.data?.items);
+            fetch(`${API_URL}/orders`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
             })
-            .catch((err) => {
-                setError(err);
-                console.log('Catch an error: ', err);
-                console.error(err);
-            })
-            .finally(() => {
-                setLoading(false);
-            });
-    }, []);
+                .then((res) => res.json())
+                .then((json) => {
+                    setORDERs(json?.data?.items);
+                })
+                .catch((err) => {
+                    setError(err);
+                    console.log('Catch an error: ', err);
+                    console.error(err);
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
+
+            return () => {
+                console.log('Screen unfocused');
+            };
+        }, [])
+    );
 
     const OrderStatus = {
         pending: { color: '#BB4D00', backgroundColor: '#FEF3C6', text: 'Đang chờ' },
@@ -88,11 +99,16 @@ export default function supply() {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <Text style={styles.title}>Quản lý Đơn hàng</Text>
-                <Text style={styles.subtitle}>
-                    Phê duyệt, từ chối và theo dõi trạng thái đơn hàng cho vai trò điều
-                    phối viên.
-                </Text>
+                <Pressable onPress={() => router.navigate('/')} style={styles.backBtn}>
+                    <FontAwesome name='chevron-left' size={24} color='#999' />
+                </Pressable>
+                <View>
+                    <Text style={styles.title}>Quản lý Đơn hàng</Text>
+                    <Text style={styles.subtitle}>
+                        Phê duyệt, từ chối và theo dõi trạng thái đơn hàng cho vai trò điều
+                        phối viên.
+                    </Text>
+                </View>
             </View>
 
             <View>
@@ -143,6 +159,16 @@ const styles = StyleSheet.create({
     container: {
         padding: 16,
         gap: 16,
+    },
+
+    header: {
+        flexDirection: 'row',
+        // gap: 8,
+    },
+
+    backBtn: {
+        marginTop: 4,
+        paddingRight: 8,
     },
 
     title: {
