@@ -1,7 +1,18 @@
 export interface SuggestedBatch {
+  id?: string | number;
+  batchId?: string | number;
   batchCode: string;
   qtyToPick: number;
   expiry: string;
+}
+
+export interface ScanCheckBatchInfo {
+  productName?: string;
+  batchId?: string | number;
+  batchCode?: string;
+  expiryDate?: string;
+  quantityPhysical?: number;
+  status?: string;
 }
 
 export interface PickingTaskItem {
@@ -30,7 +41,27 @@ export interface PickingTask {
   createdAt: string;
   updatedAt?: string;
   items?: PickingTaskItem[]; // the array of items to pick
-  pickingItems?: PickingTaskItem[]; 
+  pickingItems?: PickingTaskItem[];
+}
+
+export interface PickingTaskDetail {
+  orderId?: string;
+  shipmentId?: string;
+  items?: PickingTaskItem[];
+}
+
+export interface FinalizeBulkPickedItem {
+  batchId: number;
+  quantity: number;
+}
+
+export interface FinalizeBulkOrder {
+  orderId: string;
+  pickedItems: FinalizeBulkPickedItem[];
+}
+
+export interface FinalizeBulkPayload {
+  orders: FinalizeBulkOrder[];
 }
 
 export interface GetPickingTasksParams {
