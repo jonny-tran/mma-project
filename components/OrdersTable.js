@@ -56,10 +56,9 @@ export default function OrdersTable({
                             style={styles.viewBtn}
                             onPress={() =>
                                 router.push({
-                                    pathname: '/order-detail',
+                                    pathname: '/orderId',
                                     params: {
                                         orderId: order.id,
-                                        link: 'brand',
                                     },
                                 })
                             }

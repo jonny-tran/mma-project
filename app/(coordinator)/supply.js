@@ -26,7 +26,7 @@ export default function supply() {
         // ==FIX==
         // token
         // fetch
-        const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkY2JmODk1NS0zMTZmLTQ5NzQtYmZmMC1kYzQ4ODI3N2Y2YTQiLCJlbWFpbCI6ImNvb3JkaW5hdG9yQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBwbHlfY29vcmRpbmF0b3IiLCJzdG9yZUlkIjpudWxsLCJpYXQiOjE3NzM2NzYyNTksImV4cCI6MTc3MzY3OTg1OX0.6Ow8b9bwDGX8aFLciNg_NI1OjIbYw5josQTJGi4QOyU';
+        const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkY2JmODk1NS0zMTZmLTQ5NzQtYmZmMC1kYzQ4ODI3N2Y2YTQiLCJlbWFpbCI6ImNvb3JkaW5hdG9yQGdtYWlsLmNvbSIsInJvbGUiOiJzdXBwbHlfY29vcmRpbmF0b3IiLCJzdG9yZUlkIjpudWxsLCJpYXQiOjE3NzM4MjE1MzMsImV4cCI6MTc3MzgyNTEzM30.2YSfBlZkzvBkRlaZ0h_GVxkagQ0bfEdCauTenwG_dug';
 
         fetch(`${API_URL}/orders`, {
             method: 'GET',
