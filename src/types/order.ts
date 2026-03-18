@@ -11,10 +11,11 @@ export type OrderStatus =
 export type SortOrder = "ASC" | "DESC";
 
 export interface PaginatedMeta {
-    page: number;
-    limit: number;
-    total: number;
+    totalItems: number;
+    itemCount: number;
+    itemsPerPage: number;
     totalPages: number;
+    currentPage: number;
 }
 
 export interface PaginatedResponse<T> {
@@ -30,8 +31,8 @@ export interface OrderListQuery {
     status?: OrderStatus;
     search?: string;
     storeId?: string;
-    fromDate?: string; // YYYY-MM-DD
-    toDate?: string; // YYYY-MM-DD
+    fromDate?: string;
+    toDate?: string;
 }
 
 export interface OrderSummary {
@@ -54,6 +55,67 @@ export interface OrderDetail {
         productName?: string;
         unit?: string;
     }>;
+}
+
+// ──── Store Ordering Types ────
+
+export interface CreateOrderItem {
+    productId: number;
+    quantity: number;
+}
+
+export interface CreateOrderPayload {
+    deliveryDate: string;
+    items: CreateOrderItem[];
+}
+
+export interface StoreOrderProduct {
+    id: number;
+    sku: string;
+    name: string;
+    imageUrl?: string;
+}
+
+export interface StoreOrderItem {
+    id: number;
+    orderId: string;
+    productId: number;
+    quantityRequested: string;
+    quantityApproved: string | null;
+    product: StoreOrderProduct;
+}
+
+export interface StoreInfo {
+    id: string;
+    name: string;
+    address: string;
+    managerName: string;
+    phone: string;
+}
+
+export interface StoreOrder {
+    id: string;
+    storeId: string;
+    status: OrderStatus;
+    totalAmount?: string;
+    deliveryDate: string;
+    priority: string;
+    note: string | null;
+    createdAt: string;
+    updatedAt: string;
+    store?: StoreInfo;
+    items?: StoreOrderItem[];
+}
+
+export interface StoreOrderListQuery {
+    page?: number;
+    limit?: number;
+    status?: OrderStatus;
+}
+
+export interface StoreOrderPaginatedResponse {
+    items: StoreOrder[];
+    meta: PaginatedMeta;
 }
 
 export interface CoordinatorReviewItem {
