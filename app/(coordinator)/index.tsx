@@ -3,20 +3,20 @@ import { useAuthStore } from "@/src/store/authStore";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
-  Dimensions,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View,
+    Dimensions,
+    ScrollView,
+    StyleSheet,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import {
-  ActivityIndicator,
-  Appbar,
-  Avatar,
-  Card,
-  Icon,
-  Surface,
-  Text,
+    ActivityIndicator,
+    Appbar,
+    Avatar,
+    Card,
+    Icon,
+    Surface,
+    Text,
 } from "react-native-paper";
 import Toast from "react-native-toast-message";
 
@@ -106,7 +106,7 @@ export default function CoordinatorHomeScreen() {
 
   return (
     <View style={styles.container}>
-      <Appbar.Header elevated style={{ backgroundColor: "#1565C0" }}>
+      <Appbar.Header elevated style={{ backgroundColor: "#E65100" }}>
         <Appbar.Content
           title="Điều phối Cung ứng"
           subtitle={`Xin chào, ${user?.username || "Điều phối viên"}`}
@@ -127,21 +127,33 @@ export default function CoordinatorHomeScreen() {
           <Avatar.Icon
             size={64}
             icon="account-tie"
-            style={{ backgroundColor: "#E3F2FD" }}
-            color="#1565C0"
+            style={{ backgroundColor: "#E6510015" }}
+            color="#E65100"
           />
           <View style={styles.profileInfo}>
             <Text style={styles.welcomeText}>Chào mừng trở lại,</Text>
             <Text style={styles.userName}>
               {user?.username || "Điều phối viên"}
             </Text>
-            <View style={[styles.roleBadge, user?.status === 'ACTIVE' ? {} : { backgroundColor: '#FFEBEE' }]}>
-              <Icon 
-                source={user?.status === 'ACTIVE' ? "check-decagram" : "close-octagon"} 
-                size={16} 
-                color={user?.status === 'ACTIVE' ? "#4CAF50" : "#D32F2F"} 
+            <View
+              style={[
+                styles.roleBadge,
+                user?.status === "ACTIVE" ? {} : { backgroundColor: "#FFEBEE" },
+              ]}
+            >
+              <Icon
+                source={
+                  user?.status === "ACTIVE" ? "check-decagram" : "close-octagon"
+                }
+                size={16}
+                color={user?.status === "ACTIVE" ? "#4CAF50" : "#D32F2F"}
               />
-              <Text style={[styles.roleText, user?.status === 'ACTIVE' ? {} : { color: '#D32F2F' }]}>
+              <Text
+                style={[
+                  styles.roleText,
+                  user?.status === "ACTIVE" ? {} : { color: "#D32F2F" },
+                ]}
+              >
                 {user?.role || "COORDINATOR"}
               </Text>
             </View>
@@ -155,7 +167,7 @@ export default function CoordinatorHomeScreen() {
             "Duyệt Đơn Hàng",
             "Tổng hợp đơn, kiểm tra tồn kho & xử lý thiếu hàng",
             "clipboard-check-outline",
-            "#1565C0",
+            "#E65100",
             () => router.push("/(coordinator)/supply" as any),
           )}
         </View>
@@ -164,8 +176,10 @@ export default function CoordinatorHomeScreen() {
         <Text style={styles.sectionTitle}>Thông tin Tài khoản</Text>
         <Card style={styles.activityCard} mode="elevated">
           <Card.Content style={styles.activityContent}>
-             <View style={styles.activityItem}>
-              <View style={[styles.activityIconBg, { backgroundColor: "#ECEFF1" }]}>
+            <View style={styles.activityItem}>
+              <View
+                style={[styles.activityIconBg, { backgroundColor: "#ECEFF1" }]}
+              >
                 <Icon source="email-outline" size={20} color="#607D8B" />
               </View>
               <View style={styles.activityTextContainer}>
@@ -175,19 +189,21 @@ export default function CoordinatorHomeScreen() {
             </View>
             <View style={styles.divider} />
             <View style={styles.activityItem}>
-              <View style={[styles.activityIconBg, { backgroundColor: "#ECEFF1" }]}>
+              <View
+                style={[styles.activityIconBg, { backgroundColor: "#ECEFF1" }]}
+              >
                 <Icon source="calendar-outline" size={20} color="#607D8B" />
               </View>
               <View style={styles.activityTextContainer}>
                 <Text style={styles.activityTitle}>Ngày tạo tài khoản</Text>
                 <Text style={styles.activityTime}>
                   {user?.createdAt
-                      ? new Date(user.createdAt).toLocaleDateString("vi-VN", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                        })
-                      : "—"}
+                    ? new Date(user.createdAt).toLocaleDateString("vi-VN", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      })
+                    : "—"}
                 </Text>
               </View>
             </View>
