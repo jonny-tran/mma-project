@@ -3,20 +3,20 @@ import { useAuthStore } from "@/src/store/authStore";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
-    Dimensions,
-    ScrollView,
-    StyleSheet,
-    TouchableOpacity,
-    View,
+  Dimensions,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import {
-    ActivityIndicator,
-    Appbar,
-    Avatar,
-    Card,
-    Icon,
-    Surface,
-    Text,
+  ActivityIndicator,
+  Appbar,
+  Avatar,
+  Card,
+  Icon,
+  Surface,
+  Text,
 } from "react-native-paper";
 import Toast from "react-native-toast-message";
 
@@ -294,7 +294,8 @@ const styles = StyleSheet.create({
     marginBottom: 28,
   },
   actionCardWrapper: {
-    width: (width - 48) / 2, // 2 columns with padding and gap
+    // width: (width - 48) / 2, // 2 columns with padding and gap
+    flex: 1,
   },
   actionCard: {
     backgroundColor: "#fff",

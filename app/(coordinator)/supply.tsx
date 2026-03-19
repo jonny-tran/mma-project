@@ -2,28 +2,28 @@ import { orderApi } from "@/src/apis/order.api";
 import { OrderListQuery, OrderSummary } from "@/src/types/order";
 import { useFocusEffect, useRouter } from "expo-router";
 import React, {
-    useCallback,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
 } from "react";
 import {
-    FlatList,
-    RefreshControl,
-    ScrollView,
-    StyleSheet,
-    TouchableOpacity,
-    View,
+  FlatList,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import {
-    ActivityIndicator,
-    Appbar,
-    Card,
-    Icon,
-    Text,
-    TextInput,
-    useTheme,
+  ActivityIndicator,
+  Appbar,
+  Card,
+  Icon,
+  Text,
+  TextInput,
+  useTheme,
 } from "react-native-paper";
 import Toast from "react-native-toast-message";
 
@@ -431,7 +431,7 @@ export default function CoordinatorOrdersScreen() {
           <TextInput
             mode="outlined"
             label="Ngày giao"
-            placeholder="19/03/2026"
+            placeholder=""
             value={deliveryDateText}
             onChangeText={handleDeliveryDateTextChange}
             autoCapitalize="none"
